@@ -1,0 +1,158 @@
+alias: Ev charger use solar with charger control
+description: Change power limits based on battery level, charger status, and total DC power
+triggers:
+  - seconds: /30
+    trigger: time_pattern
+conditions:
+  - condition: state
+    entity_id: binary_sensor.pv_generating
+    state: "on"
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+    enabled: true
+actions:
+  - action: switch.turn_on
+    metadata: {}
+    data: {}
+    target:
+      device_id: FILLIN 
+    enabled: true
+  - choose:
+      - conditions:
+          - condition: numeric_state
+            entity_id: sensor.excess_solar
+            above: 7300
+        sequence:
+          - data:
+              value: "32"
+            action: number.set_value
+            target:
+              entity_id: number.charger_maximum_current
+          - action: notify.mobile_app_pixel_5
+            metadata: {}
+            data:
+              message: Charger set to 32 AMPs charge speed
+              title: "Charger update "
+            enabled: false
+      - conditions:
+          - condition: numeric_state
+            entity_id: sensor.excess_solar
+            above: 7000
+            below: 7300
+        sequence:
+          - target:
+              entity_id: number.charger_maximum_current
+            data:
+              value: "30"
+            action: number.set_value
+          - action: notify.mobile_app_pixel_5
+            metadata: {}
+            data:
+              message: Charger set to 30 AMPs charge speed
+              title: "Charger update "
+            enabled: false
+      - conditions:
+          - condition: numeric_state
+            entity_id: sensor.excess_solar
+            above: 6500
+            below: 6999
+        sequence:
+          - target:
+              entity_id: number.charger_maximum_current
+            data:
+              value: "24"
+            action: number.set_value
+          - action: notify.mobile_app_pixel_5
+            metadata: {}
+            data:
+              message: Charger set to 24 AMPs charge speed
+              title: "Charger update "
+            enabled: false
+      - conditions:
+          - condition: numeric_state
+            entity_id: sensor.excess_solar
+            above: 6000
+            below: 6499
+        sequence:
+          - target:
+              entity_id: number.charger_maximum_current
+            data:
+              value: "20"
+            action: number.set_value
+          - action: notify.mobile_app_pixel_5
+            metadata: {}
+            data:
+              message: Charger set to 20 AMPs charge speed
+              title: "Charger update "
+            enabled: false
+      - conditions:
+          - condition: numeric_state
+            entity_id: sensor.excess_solar
+            above: 5000
+            below: 5999
+        sequence:
+          - target:
+              entity_id: number.charger_maximum_current
+            data:
+              value: "18"
+            action: number.set_value
+          - action: notify.mobile_app_pixel_5
+            metadata: {}
+            data:
+              message: Charger set to 18 AMPs charge speed
+              title: "Charger update "
+            enabled: false
+      - conditions:
+          - condition: numeric_state
+            entity_id: sensor.excess_solar
+            above: 4000
+            below: 4999
+        sequence:
+          - target:
+              entity_id: number.charger_maximum_current
+            data:
+              value: "15"
+            action: number.set_value
+          - action: notify.mobile_app_pixel_5
+            metadata: {}
+            data:
+              message: Charger set to 15 AMPs charge speed
+              title: "Charger update "
+            enabled: false
+      - conditions:
+          - condition: numeric_state
+            entity_id: sensor.excess_solar
+            above: 3000
+            below: 3999
+        sequence:
+          - target:
+              entity_id: number.charger_maximum_current
+            data:
+              value: "10"
+            action: number.set_value
+          - action: notify.mobile_app_pixel_5
+            metadata: {}
+            data:
+              message: Charger set to 10 AMPs charge speed
+              title: "Charger update "
+            enabled: false
+      - conditions:
+          - condition: numeric_state
+            entity_id: sensor.excess_solar
+            below: 3000
+        sequence:
+          - action: switch.turn_off
+            target:
+              device_id:
+                - FILLIN
+            data: {}
+          - action: notify.mobile_app_pixel_5
+            metadata: {}
+            data:
+              message: Charger set to 0 AMPs charge speed
+              title: "Charger update "
+            enabled: false
+    enabled: true
+mode: single
