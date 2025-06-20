@@ -229,7 +229,7 @@ actions:
               - action: notify.mobile_app_pixel_5
                 metadata: {}
                 data:
-                  message: Charger set to 0 AMPs charge speed
+                  message: Charger disabled, not enough excess solar
                   title: "Charger update "
                 enabled: true
             alias: Check charger state
