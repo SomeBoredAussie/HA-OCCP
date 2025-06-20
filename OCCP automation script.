@@ -1,158 +1,238 @@
 alias: Ev charger use solar with charger control
 description: Change power limits based on battery level, charger status, and total DC power
 triggers:
-  - seconds: /30
-    trigger: time_pattern
+  - trigger: time_pattern
+    seconds: "30"
+    enabled: true
 conditions:
   - condition: state
-    entity_id: binary_sensor.pv_generating
+    entity_id: switch.charger_charge_control
     state: "on"
     for:
       hours: 0
-      minutes: 1
-      seconds: 0
+      minutes: 0
+      seconds: 30
     enabled: true
 actions:
-  - action: switch.turn_on
-    metadata: {}
-    data: {}
-    target:
-      device_id: FILLIN 
-    enabled: true
   - choose:
       - conditions:
           - condition: numeric_state
-            entity_id: sensor.excess_solar
+            entity_id: sensor.excess_solar_not_including_charger
             above: 7300
         sequence:
-          - data:
-              value: "32"
-            action: number.set_value
-            target:
-              entity_id: number.charger_maximum_current
-          - action: notify.mobile_app_pixel_5
-            metadata: {}
-            data:
-              message: Charger set to 32 AMPs charge speed
-              title: "Charger update "
-            enabled: false
+          - alias: Check if charger is at 30 amp
+            if:
+              - condition: template
+                value_template: |
+                  condition: template
+                  value_template: |-
+                    - condition: template
+                      value_template: "{{ states('number.charger_maximum_current') | float != 30 }}"
+                  alias: Check if charger is at 30 amp
+                alias: Check if charger is at 30 amp
+            then:
+              - target:
+                  entity_id: number.charger_maximum_current
+                data:
+                  value: "30"
+                action: number.set_value
+              - action: notify.mobile_app_pixel_5
+                metadata: {}
+                data:
+                  message: Charger set to 30 AMPs charge speed
+                  title: "Charger update "
+                enabled: true
+        alias: "7300-plus tune to 30 amp "
       - conditions:
-          - condition: numeric_state
-            entity_id: sensor.excess_solar
-            above: 7000
+          - alias: 6900-7300 tune to 28 amp
+            condition: numeric_state
+            entity_id: sensor.excess_solar_not_including_charger
+            above: 6900
             below: 7300
         sequence:
-          - target:
-              entity_id: number.charger_maximum_current
-            data:
-              value: "30"
-            action: number.set_value
-          - action: notify.mobile_app_pixel_5
-            metadata: {}
-            data:
-              message: Charger set to 30 AMPs charge speed
-              title: "Charger update "
-            enabled: false
+          - alias: Check if charger is at 28 amp
+            if:
+              - condition: template
+                value_template: |
+                  condition: template
+                  value_template: |-
+                    - condition: template
+                      value_template: "{{ states('number.charger_maximum_current') | float != 28 }}"
+                  alias: Check if charger is at 28 amp
+                alias: Check if charger is at 28 amp
+            then:
+              - target:
+                  entity_id: number.charger_maximum_current
+                data:
+                  value: "28"
+                action: number.set_value
+              - action: notify.mobile_app_pixel_5
+                metadata: {}
+                data:
+                  message: Charger set to 28 AMPs charge speed
+                  title: Charger update
+                enabled: true
       - conditions:
           - condition: numeric_state
-            entity_id: sensor.excess_solar
-            above: 6500
-            below: 6999
+            entity_id: sensor.excess_solar_not_including_charger
+            above: 5800
+            below: 6900
+            value_template: b
         sequence:
-          - target:
-              entity_id: number.charger_maximum_current
-            data:
-              value: "24"
-            action: number.set_value
-          - action: notify.mobile_app_pixel_5
-            metadata: {}
-            data:
-              message: Charger set to 24 AMPs charge speed
-              title: "Charger update "
-            enabled: false
+          - if:
+              - condition: template
+                value_template: |
+                  condition: template
+                  value_template: |-
+                    - condition: template
+                      value_template: "{{ states('number.charger_maximum_current') | float != 24 }}"
+                  alias: Check if charger is at 24 amp
+                alias: Check if charger is at 24 amp
+            then:
+              - target:
+                  entity_id: number.charger_maximum_current
+                data:
+                  value: "24"
+                action: number.set_value
+              - action: notify.mobile_app_pixel_5
+                metadata: {}
+                data:
+                  message: Charger set to 24 AMPs charge speed
+                  title: "Charger update "
+                enabled: true
+            alias: Check if charger is at 24 amp
+        alias: 5800-6900 tune to 24 amp
       - conditions:
           - condition: numeric_state
-            entity_id: sensor.excess_solar
-            above: 6000
-            below: 6499
+            entity_id: sensor.excess_solar_not_including_charger
+            above: 4800
+            below: 5800
         sequence:
-          - target:
-              entity_id: number.charger_maximum_current
-            data:
-              value: "20"
-            action: number.set_value
-          - action: notify.mobile_app_pixel_5
-            metadata: {}
-            data:
-              message: Charger set to 20 AMPs charge speed
-              title: "Charger update "
-            enabled: false
+          - if:
+              - condition: template
+                value_template: |
+                  condition: template
+                  value_template: |-
+                    - condition: template
+                      value_template: "{{ states('number.charger_maximum_current') | float != 20 }}"
+                  alias: Check if charger is at 20 amp
+                alias: Check if charger is at 20 amp
+            then:
+              - target:
+                  entity_id: number.charger_maximum_current
+                data:
+                  value: "20"
+                action: number.set_value
+              - action: notify.mobile_app_pixel_5
+                metadata: {}
+                data:
+                  message: Charger set to 20 AMPs charge speed
+                  title: "Charger update "
+                enabled: true
+            alias: Check if charger is at 20 amp
+        alias: 4800-5800 tune to 20 amp
       - conditions:
           - condition: numeric_state
-            entity_id: sensor.excess_solar
-            above: 5000
-            below: 5999
+            entity_id: sensor.excess_solar_not_including_charger
+            above: 4400
+            below: 4800
         sequence:
-          - target:
-              entity_id: number.charger_maximum_current
-            data:
-              value: "18"
-            action: number.set_value
-          - action: notify.mobile_app_pixel_5
-            metadata: {}
-            data:
-              message: Charger set to 18 AMPs charge speed
-              title: "Charger update "
-            enabled: false
+          - if:
+              - condition: template
+                value_template: |
+                  condition: template
+                  value_template: |-
+                    - condition: template
+                      value_template: "{{ states('number.charger_maximum_current') | float != 18 }}"
+                  alias: Check if charger is at 18 amp
+                alias: Check if charger is at 18 amp
+            then:
+              - target:
+                  entity_id: number.charger_maximum_current
+                data:
+                  value: "18"
+                action: number.set_value
+              - action: notify.mobile_app_pixel_5
+                metadata: {}
+                data:
+                  message: Charger set to 18 AMPs charge speed
+                  title: "Charger update "
+                enabled: true
+            alias: Check if charger is at 18 amp
+        alias: 4400-4800 tune to 18 amp
       - conditions:
           - condition: numeric_state
-            entity_id: sensor.excess_solar
+            entity_id: sensor.excess_solar_not_including_charger
             above: 4000
-            below: 4999
+            below: 4400
         sequence:
-          - target:
-              entity_id: number.charger_maximum_current
-            data:
-              value: "15"
-            action: number.set_value
-          - action: notify.mobile_app_pixel_5
-            metadata: {}
-            data:
-              message: Charger set to 15 AMPs charge speed
-              title: "Charger update "
-            enabled: false
+          - if:
+              - condition: template
+                value_template: |-
+                  - condition: template
+                    value_template: "{{ states('number.charger_maximum_current') | float != 15 }}"
+                alias: Check if charger is at 15 amp
+            then:
+              - target:
+                  entity_id: number.charger_maximum_current
+                data:
+                  value: "15"
+                action: number.set_value
+              - action: notify.mobile_app_pixel_5
+                metadata: {}
+                data:
+                  message: Charger set to 15 AMPs charge speed
+                  title: "Charger update "
+                enabled: true
+            alias: Check if charger is at 15 amp
+        alias: 4000-4400 tune to 15 amp
       - conditions:
           - condition: numeric_state
-            entity_id: sensor.excess_solar
-            above: 3000
-            below: 3999
+            entity_id: sensor.excess_solar_not_including_charger
+            above: 2400
+            below: 4400
         sequence:
-          - target:
-              entity_id: number.charger_maximum_current
-            data:
-              value: "10"
-            action: number.set_value
-          - action: notify.mobile_app_pixel_5
-            metadata: {}
-            data:
-              message: Charger set to 10 AMPs charge speed
-              title: "Charger update "
-            enabled: false
+          - if:
+              - condition: template
+                value_template: |-
+                  - condition: template
+                    value_template: "{{ states('number.charger_maximum_current') | int != 10 }}"
+            then:
+              - target:
+                  entity_id: number.charger_maximum_current
+                data:
+                  value: "15"
+                action: number.set_value
+              - action: notify.mobile_app_pixel_5
+                metadata: {}
+                data:
+                  message: Charger set to 10 AMPs charge speed
+                  title: "Charger update "
+                enabled: true
+            alias: Check if charger is at 10 amp
+        alias: 2400-4400 tune to 10 amp
       - conditions:
           - condition: numeric_state
-            entity_id: sensor.excess_solar
-            below: 3000
+            entity_id: sensor.excess_solar_not_including_charger
+            below: 2400
         sequence:
-          - action: switch.turn_off
-            target:
-              device_id:
-                - FILLIN
-            data: {}
-          - action: notify.mobile_app_pixel_5
-            metadata: {}
-            data:
-              message: Charger set to 0 AMPs charge speed
-              title: "Charger update "
-            enabled: false
+          - if:
+              - condition: state
+                entity_id: switch.charger_charge_control
+                state: "on"
+            then:
+              - action: switch.turn_off
+                target:
+                  device_id:
+                    - 84d843981223f3a6c0535209ad34620e
+                data: {}
+              - action: notify.mobile_app_pixel_5
+                metadata: {}
+                data:
+                  message: Charger set to 0 AMPs charge speed
+                  title: "Charger update "
+                enabled: true
+            alias: Check charger state
+        alias: BELOW 2400- DISABLE Charger
     enabled: true
 mode: single
